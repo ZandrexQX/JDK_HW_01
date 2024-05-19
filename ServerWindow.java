@@ -21,6 +21,7 @@ public class ServerWindow extends JFrame {
 
     public ServerWindow(){
         isServerWork = false;
+        log.setEditable(false);
 
         log.setText(STR."\{formatter.format(date)} Chat running");
         btnStop.addActionListener(e -> {
@@ -42,7 +43,8 @@ public class ServerWindow extends JFrame {
         panBottom.add(btnStart);
         panBottom.add(btnStop);
 
-        add(log);
+        JScrollPane scrolling = new JScrollPane(log);
+        add(scrolling);
         add(panBottom, BorderLayout.SOUTH);
 
         setVisible(true);
