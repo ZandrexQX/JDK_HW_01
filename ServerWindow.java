@@ -12,12 +12,12 @@ public class ServerWindow extends JFrame {
     private static final int WINDOW_POSX = 800;
     private static final int WINDOW_POSY = 300;
 
-    private final JButton btnStart = new JButton("Запуск");
-    private final JButton btnStop = new JButton("Остановка");
-    private final JTextArea log = new JTextArea();
-    private boolean isServerWork;
-    private Date date = new Date();
-    private final SimpleDateFormat formatter = new SimpleDateFormat("[dd MMM YY - hh:mm]");
+    final JButton btnStart = new JButton("Запуск");
+    final JButton btnStop = new JButton("Остановка");
+    public static final JTextArea log = new JTextArea();
+    boolean isServerWork;
+    Date date = new Date();
+    final SimpleDateFormat formatter = new SimpleDateFormat("[dd MMM YY - hh:mm]");
 
     public ServerWindow(){
         isServerWork = false;

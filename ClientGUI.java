@@ -7,7 +7,7 @@ public class ClientGUI extends JFrame {
     private static final int WINDOW_HEIGHT = 350;
     private static final int WINDOW_WIDTH = 450;
 
-    private final JTextArea log = new JTextArea();
+    private JTextArea log = new JTextArea();
 
     private final JPanel panelTop = new JPanel(new GridLayout(2, 3));
     private JTextField tfIP = new JTextField("127.0.0.1");
@@ -20,11 +20,42 @@ public class ClientGUI extends JFrame {
     private final JTextField tfMessage = new JTextField();
     private final JButton btnSend = new JButton("Отправить");
 
-    public ClientGUI(){
+    private boolean isLogin = false;
+
+    public ClientGUI(ServerWindow serverWindow){
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         setTitle("Chat client");
+
+        btnLogin.addActionListener(e -> {
+            if(serverWindow.isServerWork) {
+                isLogin = true;
+                log.setText(STR."\{serverWindow.formatter.format(serverWindow.date)} Вы подключены");
+                serverWindow.log.setText(STR."\{serverWindow.log.getText()}\n"+
+                        STR."\{serverWindow.formatter.format(serverWindow.date)} \{tfLogin.getText()} подключен");
+            }else{
+                log.setText("Сервер не работает");
+            }
+        });
+
+        btnSend.addActionListener(e -> {
+            if(isLogin) {
+                String message = STR."\{serverWindow.formatter.format(serverWindow.date)}" +
+                        STR." \{tfMessage.getText()}";
+                log.setText(STR."\{log.getText()}\n\{message}");
+                serverWindow.log.setText(STR."\{serverWindow.log.getText()}\n[\{tfLogin.getText()}]: \{message}");
+            } else {
+                log.setText("Нет соединения");
+            }
+            tfMessage.setText("");
+        });
+
+        serverWindow.btnStart.addActionListener(e -> {log.setText("Сервер подключен");});
+        serverWindow.btnStop.addActionListener(e -> {
+            log.setText("Сервер отключен");
+            isLogin = false;
+        });
 
         panelTop.add(tfIP);
         panelTop.add(tfPort);
@@ -36,6 +67,7 @@ public class ClientGUI extends JFrame {
         panBottom.add(tfMessage);
         panBottom.add(btnSend);
         add(panBottom, BorderLayout.SOUTH);
+//        this.log = serverWindow.log;
         log.setEditable(false);
         add(log);
         JScrollPane scrolling = new JScrollPane(log);
