@@ -2,6 +2,14 @@ package chat.server;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -48,5 +56,29 @@ public class ServerWindow extends JFrame {
         add(panBottom, BorderLayout.SOUTH);
 
         setVisible(true);
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowOpened(WindowEvent e) {
+                super.windowOpened(e);
+                try {
+                    String logText = Files.lines(Paths.get("log.txt")).reduce("", (a,b) -> STR."\{a}\n\{b}");
+                    log.setText(logText.trim());
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+
+            @Override
+            public void windowClosing(WindowEvent e) {
+                super.windowClosing(e);
+                try (FileWriter fw = new FileWriter("log.txt", false)){
+                    fw.write(log.getText().trim());
+                    fw.flush();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
     }
 }

@@ -22,11 +22,12 @@ public class ClientGUI extends JFrame {
 
     private boolean isLogin = false;
 
-    public ClientGUI(ServerWindow serverWindow){
+    public ClientGUI(ServerWindow serverWindow, String login){
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         setTitle("Chat client");
+        tfLogin.setText(login);
 
         btnLogin.addActionListener(e -> {
             if(serverWindow.isServerWork) {
