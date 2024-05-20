@@ -1,6 +1,8 @@
 package chat.server;
 
 import javax.swing.*;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 import java.awt.*;
 
 public class ClientGUI extends JFrame {
@@ -56,6 +58,25 @@ public class ClientGUI extends JFrame {
         serverWindow.btnStop.addActionListener(e -> {
             log.setText("Сервер отключен");
             isLogin = false;
+        });
+
+        serverWindow.log.addAncestorListener(new AncestorListener() {
+            @Override
+            public void ancestorAdded(AncestorEvent event) {
+
+            }
+
+            @Override
+            public void ancestorRemoved(AncestorEvent event) {
+
+            }
+
+            @Override
+            public void ancestorMoved(AncestorEvent event) {
+                if(isLogin){
+                    log.setText(serverWindow.log.getText());
+                }
+            }
         });
 
         panelTop.add(tfIP);
