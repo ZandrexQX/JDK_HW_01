@@ -1,18 +1,9 @@
 package chat.server;
 
 import javax.swing.*;
-import javax.swing.event.AncestorEvent;
-import javax.swing.event.AncestorListener;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import java.awt.*;
-import java.awt.event.InputMethodEvent;
-import java.awt.event.InputMethodListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyVetoException;
-import java.beans.VetoableChangeListener;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class ClientGUI extends JFrame {
     private static final int WINDOW_HEIGHT = 350;
@@ -27,13 +18,13 @@ public class ClientGUI extends JFrame {
     private JPasswordField tfPass = new JPasswordField("123456");
     private final JButton btnLogin = new JButton("Login");
 
-    private final JPanel panBottom = new JPanel(new GridLayout(1,2));
+    private final JPanel panBottom = new JPanel(new GridLayout(1, 2));
     private final JTextField tfMessage = new JTextField();
     private final JButton btnSend = new JButton("Отправить");
 
     private boolean isLogin = false;
 
-    public ClientGUI(ServerWindow serverWindow, String login){
+    public ClientGUI(ServerWindow serverWindow, String login) {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -41,18 +32,18 @@ public class ClientGUI extends JFrame {
         tfLogin.setText(login);
 
         btnLogin.addActionListener(e -> {
-            if(serverWindow.isServerWork) {
+            if (serverWindow.isServerWork) {
                 isLogin = true;
                 log.setText(STR."\{serverWindow.formatter.format(serverWindow.date)} Вы подключены");
-                serverWindow.log.setText(STR."\{serverWindow.log.getText()}\n"+
+                serverWindow.log.setText(STR."\{serverWindow.log.getText()}\n" +
                         STR."\{serverWindow.formatter.format(serverWindow.date)} \{tfLogin.getText()} подключен");
-            }else{
+            } else {
                 log.setText("Сервер не работает");
             }
         });
 
         btnSend.addActionListener(e -> {
-            if(isLogin) {
+            if (isLogin) {
                 String message = STR."\{serverWindow.formatter.format(serverWindow.date)}" +
                         STR." \{tfMessage.getText()}";
                 log.setText(STR."\{log.getText()}\n\{message}");
@@ -63,18 +54,17 @@ public class ClientGUI extends JFrame {
             tfMessage.setText("");
         });
 
-        serverWindow.btnStart.addActionListener(e -> {log.setText("Сервер подключен");});
+        serverWindow.btnStart.addActionListener(e -> {
+            log.setText("Сервер подключен");
+        });
         serverWindow.btnStop.addActionListener(e -> {
             log.setText("Сервер отключен");
             isLogin = false;
         });
 
-        serverWindow.log.addCaretListener(new CaretListener() {
-            @Override
-            public void caretUpdate(CaretEvent e) {
-                if(isLogin){
-                    log.setText(serverWindow.log.getText());
-                }
+        serverWindow.log.addCaretListener(e -> {
+            if (isLogin) {
+                log.setText(serverWindow.log.getText().replace(STR."[\{tfLogin.getText()}]:",">>"));
             }
         });
 
