@@ -1,8 +1,6 @@
 package chat.server;
 
 import javax.swing.*;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
 import java.awt.*;
 
 public class ClientGUI extends JFrame {
@@ -78,7 +76,6 @@ public class ClientGUI extends JFrame {
         panBottom.add(tfMessage);
         panBottom.add(btnSend);
         add(panBottom, BorderLayout.SOUTH);
-//        this.log = serverWindow.log;
         log.setEditable(false);
         add(log);
         JScrollPane scrolling = new JScrollPane(log);
