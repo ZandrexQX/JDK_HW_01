@@ -3,7 +3,16 @@ package chat.server;
 import javax.swing.*;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 import java.awt.*;
+import java.awt.event.InputMethodEvent;
+import java.awt.event.InputMethodListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyVetoException;
+import java.beans.VetoableChangeListener;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ClientGUI extends JFrame {
     private static final int WINDOW_HEIGHT = 350;
@@ -60,19 +69,9 @@ public class ClientGUI extends JFrame {
             isLogin = false;
         });
 
-        serverWindow.log.addAncestorListener(new AncestorListener() {
+        serverWindow.log.addCaretListener(new CaretListener() {
             @Override
-            public void ancestorAdded(AncestorEvent event) {
-
-            }
-
-            @Override
-            public void ancestorRemoved(AncestorEvent event) {
-
-            }
-
-            @Override
-            public void ancestorMoved(AncestorEvent event) {
+            public void caretUpdate(CaretEvent e) {
                 if(isLogin){
                     log.setText(serverWindow.log.getText());
                 }
