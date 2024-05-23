@@ -20,6 +20,8 @@ public class ClientGUI extends JFrame {
     private final JTextField tfMessage = new JTextField();
     private final JButton btnSend = new JButton("Отправить");
 
+    private ServerWindow server;
+
     private boolean isLogin = false;
 
     public ClientGUI(ServerWindow serverWindow, String login) {
@@ -27,13 +29,13 @@ public class ClientGUI extends JFrame {
         setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         setTitle("Chat client");
         tfLogin.setText(login);
+        this.server = serverWindow;
+        server.addClient(this);
 
         btnLogin.addActionListener(e -> {
-            if (serverWindow.isServerWork) {
-                isLogin = true;
-                log.setText(STR."\{serverWindow.formatter.format(serverWindow.date)} Вы подключены");
-                serverWindow.log.setText(STR."\{serverWindow.log.getText()}\n" +
-                        STR."\{serverWindow.formatter.format(serverWindow.date)} \{tfLogin.getText()} подключен");
+            server.connectClient(this);
+            if (isLogin) {
+                log.setText("Вы подключены");
             } else {
                 log.setText("Сервер не работает");
             }
@@ -41,29 +43,14 @@ public class ClientGUI extends JFrame {
 
         btnSend.addActionListener(e -> {
             if (isLogin) {
-                String message = STR."\{serverWindow.formatter.format(serverWindow.date)}" +
-                        STR." \{tfMessage.getText()}";
-                log.setText(STR."\{log.getText()}\n\{message}");
-                serverWindow.log.setText(STR."\{serverWindow.log.getText()}\n[\{tfLogin.getText()}]: \{message}");
+                sendMessage(STR."\{tfMessage.getText()}");
+                server.sendLog(STR."[\{tfLogin.getText()}] \{tfMessage.getText()}");
             } else {
                 log.setText("Нет соединения");
             }
             tfMessage.setText("");
         });
 
-        serverWindow.btnStart.addActionListener(e -> {
-            log.setText("Сервер подключен");
-        });
-        serverWindow.btnStop.addActionListener(e -> {
-            log.setText("Сервер отключен");
-            isLogin = false;
-        });
-
-        serverWindow.log.addCaretListener(e -> {
-            if (isLogin) {
-                log.setText(serverWindow.log.getText().replace(STR."[\{tfLogin.getText()}]:",">>"));
-            }
-        });
 
         panelTop.add(tfIP);
         panelTop.add(tfPort);
@@ -83,4 +70,16 @@ public class ClientGUI extends JFrame {
         setVisible(true);
     }
 
+    void connected(){
+        isLogin = true;
+        panelTop.setVisible(false);
+    }
+
+    String getLogin(){
+        return tfLogin.getText();
+    }
+
+    void sendMessage(String message){
+        log.setText(STR."\{log.getText()}\n\{server.getFormatter()} \{message}");
+    }
 }

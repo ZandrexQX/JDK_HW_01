@@ -4,14 +4,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 
 public class ServerWindow extends JFrame {
@@ -20,26 +20,28 @@ public class ServerWindow extends JFrame {
     private static final int WINDOW_POSX = 800;
     private static final int WINDOW_POSY = 300;
 
-    final JButton btnStart = new JButton("Запуск");
-    final JButton btnStop = new JButton("Остановка");
-    public static final JTextArea log = new JTextArea();
-    boolean isServerWork;
-    Date date = new Date();
-    final SimpleDateFormat formatter = new SimpleDateFormat("[dd MMM YY - hh:mm]");
+    private final JButton btnStart = new JButton("Запуск");
+    private final JButton btnStop = new JButton("Остановка");
+    private static final JTextArea log = new JTextArea();
+    private boolean isServerWork;
+    private Date date = new Date();
+    private final SimpleDateFormat formatter = new SimpleDateFormat("[dd MMM YY - hh:mm]");
+
+    private List<ClientGUI> clients = new ArrayList<ClientGUI>();
 
     public ServerWindow(){
         isServerWork = false;
         log.setEditable(false);
 
-        log.setText(STR."\{formatter.format(date)} Chat running");
+        sendLog("Chat running");
         btnStop.addActionListener(e -> {
             isServerWork = false;
-            log.setText(STR."\{log.getText()}\n\{formatter.format(date)} Server stopped");
+            sendLog("Server stopped");
         });
 
         btnStart.addActionListener(e -> {
             isServerWork = true;
-            log.setText(STR."\{log.getText()}\n\{formatter.format(date)} Server started");
+            sendLog("Server started");
         });
 
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -80,5 +82,25 @@ public class ServerWindow extends JFrame {
                 }
             }
         });
+    }
+    void connectClient(ClientGUI client){
+        if (isServerWork) {
+            client.connected();
+            sendLog(STR."\{client.getLogin()} подключен");
+        }
+    }
+
+    void addClient(ClientGUI client){
+        if (client != null) {
+            this.clients.add(client);
+        }
+    }
+
+    void sendLog(String message){
+        log.setText(STR."\{log.getText()}\n\{formatter.format(date)} \{message}");
+    }
+
+    String getFormatter(){
+        return formatter.format(date);
     }
 }
