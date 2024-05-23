@@ -4,6 +4,9 @@ import javax.swing.*;
 import java.awt.*;
 
 public class ClientGUI extends JFrame {
+    private static int ID = 0;
+    private int IDClient;
+
     private static final int WINDOW_HEIGHT = 350;
     private static final int WINDOW_WIDTH = 450;
 
@@ -30,12 +33,15 @@ public class ClientGUI extends JFrame {
         setTitle("Chat client");
         tfLogin.setText(login);
         this.server = serverWindow;
-        server.addClient(this);
+        this.ID += 1;
+        this.IDClient = this.ID;
 
         btnLogin.addActionListener(e -> {
             server.connectClient(this);
             if (isLogin) {
                 log.setText("Вы подключены");
+                String logServer = server.getLog();
+                sendMessage(logServer);
             } else {
                 log.setText("Сервер не работает");
             }
@@ -44,7 +50,7 @@ public class ClientGUI extends JFrame {
         btnSend.addActionListener(e -> {
             if (isLogin) {
                 sendMessage(STR."\{tfMessage.getText()}");
-                server.sendLog(STR."[\{tfLogin.getText()}] \{tfMessage.getText()}");
+                server.sendMessages(this.IDClient, STR."[\{tfLogin.getText()}] \{tfMessage.getText()}");
             } else {
                 log.setText("Нет соединения");
             }
@@ -81,5 +87,14 @@ public class ClientGUI extends JFrame {
 
     void sendMessage(String message){
         log.setText(STR."\{log.getText()}\n\{server.getFormatter()} \{message}");
+    }
+
+    int getID(){
+        return this.IDClient;
+    }
+
+    void logout(){
+        this.isLogin = false;
+        panelTop.setVisible(true);
     }
 }

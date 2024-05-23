@@ -36,12 +36,16 @@ public class ServerWindow extends JFrame {
         sendLog("Chat running");
         btnStop.addActionListener(e -> {
             isServerWork = false;
-            sendLog("Server stopped");
+            sendMessages(0, "Server stopped");
+            for (ClientGUI client : clients){
+                client.logout();
+            }
+            clients.clear();
         });
 
         btnStart.addActionListener(e -> {
             isServerWork = true;
-            sendLog("Server started");
+            sendMessages(0, "Server started");
         });
 
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -85,22 +89,38 @@ public class ServerWindow extends JFrame {
     }
     void connectClient(ClientGUI client){
         if (isServerWork) {
+            addClient(client);
             client.connected();
-            sendLog(STR."\{client.getLogin()} подключен");
+            sendMessages(0, STR."\{client.getLogin()} подключен");
         }
     }
 
-    void addClient(ClientGUI client){
+    private void addClient(ClientGUI client){
         if (client != null) {
+            System.out.println(client.getID());
             this.clients.add(client);
         }
     }
 
-    void sendLog(String message){
+    private void sendLog(String message){
         log.setText(STR."\{log.getText()}\n\{formatter.format(date)} \{message}");
     }
 
     String getFormatter(){
         return formatter.format(date);
     }
+
+    void sendMessages(int ID, String message){
+        sendLog(message);
+        for (ClientGUI client : clients){
+            if (client.getID() != ID){
+                System.out.println(client.getID());
+                client.sendMessage(STR."\{message}");
+            }
+        }
+    }
+
+    String getLog(){
+      return log.getText().trim();
+    };
 }
