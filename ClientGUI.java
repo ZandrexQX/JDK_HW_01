@@ -36,44 +36,7 @@ public class ClientGUI extends JFrame {
         this.ID += 1;
         this.IDClient = this.ID;
 
-        btnLogin.addActionListener(e -> {
-            server.connectClient(this);
-            if (isLogin) {
-                log.setText("Вы подключены");
-                String logServer = server.getLog();
-                sendMessage(logServer);
-            } else {
-                log.setText("Сервер не работает");
-            }
-        });
-
-        btnSend.addActionListener(e -> {
-            if (isLogin) {
-                sendMessage(STR."\{tfMessage.getText()}");
-                server.sendMessages(this.IDClient, STR."[\{tfLogin.getText()}] \{tfMessage.getText()}");
-            } else {
-                log.setText("Нет соединения");
-            }
-            tfMessage.setText("");
-        });
-
-
-        panelTop.add(tfIP);
-        panelTop.add(tfPort);
-        panelTop.add(tfLogin);
-        panelTop.add(tfPass);
-        panelTop.add(btnLogin);
-        add(panelTop, BorderLayout.NORTH);
-
-        panBottom.add(tfMessage);
-        panBottom.add(btnSend);
-        add(panBottom, BorderLayout.SOUTH);
-        log.setEditable(false);
-        add(log);
-        JScrollPane scrolling = new JScrollPane(log);
-        add(scrolling);
-
-        setVisible(true);
+        createPanel();
     }
 
     void connected(){
@@ -86,7 +49,15 @@ public class ClientGUI extends JFrame {
     }
 
     void sendMessage(String message){
-        log.setText(STR."\{log.getText()}\n\{server.getFormatter()} \{message}");
+        log.append(STR."\n\{server.getFormatter()} \{message}");
+    }
+
+    void answer(String message){
+        if (!message.equals("")){
+            sendMessage(message);
+            server.sendMessages(this.IDClient, STR."[\{getLogin()}] \{message}");
+        }
+
     }
 
     int getID(){
@@ -96,5 +67,55 @@ public class ClientGUI extends JFrame {
     void logout(){
         this.isLogin = false;
         panelTop.setVisible(true);
+    }
+
+    private void createPanel(){
+        createPanelTop();
+        createPanelBottom();
+        createLog();
+
+        setVisible(true);
+    }
+
+    private void createPanelTop(){
+        panelTop.add(tfIP);
+        panelTop.add(tfPort);
+        panelTop.add(tfLogin);
+        panelTop.add(tfPass);
+        panelTop.add(btnLogin);
+        add(panelTop, BorderLayout.NORTH);
+    }
+
+    private void createPanelBottom(){
+        btnLogin.addActionListener(e -> {
+            server.connectClient(this);
+            if (isLogin) {
+                log.setText("Вы подключены");
+                String logServer = server.getLog();
+                if (logServer != null) sendMessage(logServer);
+            } else {
+                log.setText("Сервер не работает");
+            }
+        });
+
+        btnSend.addActionListener(e -> {
+            if (isLogin) {
+                answer(STR."\{tfMessage.getText()}");
+            } else {
+                log.setText("Нет соединения");
+            }
+            tfMessage.setText("");
+        });
+
+        panBottom.add(tfMessage);
+        panBottom.add(btnSend);
+        add(panBottom, BorderLayout.SOUTH);
+    }
+
+    private void createLog(){
+        log.setEditable(false);
+        add(log);
+        JScrollPane scrolling = new JScrollPane(log);
+        add(scrolling);
     }
 }

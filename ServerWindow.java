@@ -23,43 +23,22 @@ public class ServerWindow extends JFrame {
     private final JButton btnStart = new JButton("Запуск");
     private final JButton btnStop = new JButton("Остановка");
     private static final JTextArea log = new JTextArea();
-    private boolean isServerWork;
+    private boolean isServerWork = false;
     private Date date = new Date();
     private final SimpleDateFormat formatter = new SimpleDateFormat("[dd MMM YY - hh:mm]");
 
     private List<ClientGUI> clients = new ArrayList<ClientGUI>();
 
     public ServerWindow(){
-        isServerWork = false;
-        log.setEditable(false);
-
-        sendLog("Chat running");
-        btnStop.addActionListener(e -> {
-            isServerWork = false;
-            sendMessages(0, "Server stopped");
-            for (ClientGUI client : clients){
-                client.logout();
-            }
-            clients.clear();
-        });
-
-        btnStart.addActionListener(e -> {
-            isServerWork = true;
-            sendMessages(0, "Server started");
-        });
-
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setBounds(WINDOW_POSX, WINDOW_POSY, WINDOW_WIDTH, WINDOW_HEIGHT);
         setResizable(false);
         setTitle("Chat server");
         setAlwaysOnTop(true);
-        JPanel panBottom = new JPanel(new GridLayout(1, 2));
-        panBottom.add(btnStart);
-        panBottom.add(btnStop);
+        sendLog("Chat running");
 
-        JScrollPane scrolling = new JScrollPane(log);
-        add(scrolling);
-        add(panBottom, BorderLayout.SOUTH);
+        createPanelBottom();
+        createLog();
 
         setVisible(true);
 
@@ -87,6 +66,7 @@ public class ServerWindow extends JFrame {
             }
         });
     }
+
     void connectClient(ClientGUI client){
         if (isServerWork) {
             addClient(client);
@@ -103,7 +83,7 @@ public class ServerWindow extends JFrame {
     }
 
     private void sendLog(String message){
-        log.setText(STR."\{log.getText()}\n\{formatter.format(date)} \{message}");
+        log.append(STR."\n\{formatter.format(date)} \{message}");
     }
 
     String getFormatter(){
@@ -114,7 +94,6 @@ public class ServerWindow extends JFrame {
         sendLog(message);
         for (ClientGUI client : clients){
             if (client.getID() != ID){
-                System.out.println(client.getID());
                 client.sendMessage(STR."\{message}");
             }
         }
@@ -123,4 +102,31 @@ public class ServerWindow extends JFrame {
     String getLog(){
       return log.getText().trim();
     };
+
+    private void createPanelBottom(){
+        btnStop.addActionListener(e -> {
+            isServerWork = false;
+            sendMessages(0, "Server stopped");
+            for (ClientGUI client : clients){
+                client.logout();
+            }
+            clients.clear();
+        });
+
+        btnStart.addActionListener(e -> {
+            isServerWork = true;
+            sendMessages(0, "Server started");
+        });
+
+        JPanel panBottom = new JPanel(new GridLayout(1, 2));
+        panBottom.add(btnStart);
+        panBottom.add(btnStop);
+        add(panBottom, BorderLayout.SOUTH);
+    }
+
+    private void createLog(){
+        log.setEditable(false);
+        JScrollPane scrolling = new JScrollPane(log);
+        add(scrolling);
+    }
 }
