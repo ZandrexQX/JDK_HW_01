@@ -2,17 +2,15 @@ package chat.server.server;
 
 import chat.server.client.ClientController;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+
+import static chat.server.server.Message.FormatMessage;
 
 public class ServerController {
     private ServerView view;
 
     private boolean isServerWork = false;
-    private Date date = new Date();
-    private final SimpleDateFormat formatter = new SimpleDateFormat("[dd MMM YY - hh:mm]");
     private String logServer;
 
     private List<ClientController> clients = new ArrayList<>();
@@ -28,14 +26,10 @@ public class ServerController {
         }
     }
 
-    public String getFormatter(){
-        return formatter.format(date);
-    }
-
     public void sendMessagesFromUser(ClientController clientController, String message){
         String text = message;
         if (clientController != null) {
-            text = STR."\{getFormatter()} - [\{clientController.getLogin()}] \{message}";
+            text = FormatMessage(STR."[\{clientController.getLogin()}] \{message}");
         }
         view.showMessage(text);
         for (ClientController client : clients){
@@ -55,13 +49,13 @@ public class ServerController {
     void startServer(){
         if(!isServerWork) {
             isServerWork = true;
-            view.showMessage(STR."\{getFormatter()} - Server started");
+            view.showMessage(FormatMessage("Server started"));
         }
     }
 
     void stopServer(){
         isServerWork = false;
-        sendMessagesFromServer(STR."\{getFormatter()} - Server stopped");
+        sendMessagesFromServer(FormatMessage("Server stopped"));
         for (ClientController client : clients){
             client.disconnect();
         }
@@ -77,7 +71,7 @@ public class ServerController {
     }
 
     public void clientIsConnect(ClientController client){
-        String text = STR."\{getFormatter()} - \{client.getLogin()} подключен";
+        String text = FormatMessage(STR."\{client.getLogin()} подключен");
         sendMessagesFromServer(text);
         view.connectClient(text);
     }
