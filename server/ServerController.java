@@ -22,7 +22,6 @@ public class ServerController {
     private void addClient(ClientController client){
         if (client != null) {
             this.clients.add(client);
-            System.out.println(client);
         }
     }
 
