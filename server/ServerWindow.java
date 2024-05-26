@@ -1,4 +1,7 @@
-package chat.server;
+package chat.server.server;
+
+import chat.server.client.ClientController;
+import chat.server.client.ClientGUI;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,28 +17,25 @@ import java.util.Date;
 import java.util.List;
 
 
-public class ServerWindow extends JFrame {
+public class ServerWindow extends JFrame implements ServerView {
     private static final int WINDOW_HEIGHT = 350;
     private static final int WINDOW_WIDTH = 450;
     private static final int WINDOW_POSX = 800;
     private static final int WINDOW_POSY = 300;
+    private static final String TITLE = "Chat server";
 
     private final JButton btnStart = new JButton("Запуск");
     private final JButton btnStop = new JButton("Остановка");
     private static final JTextArea log = new JTextArea();
-    private boolean isServerWork = false;
-    private Date date = new Date();
-    private final SimpleDateFormat formatter = new SimpleDateFormat("[dd MMM YY - hh:mm]");
 
-    private List<ClientGUI> clients = new ArrayList<ClientGUI>();
+    private ServerController server;
 
     public ServerWindow(){
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setBounds(WINDOW_POSX, WINDOW_POSY, WINDOW_WIDTH, WINDOW_HEIGHT);
         setResizable(false);
-        setTitle("Chat server");
+        setTitle(TITLE);
         setAlwaysOnTop(true);
-        sendLog("Chat running");
 
         createPanelBottom();
         createLog();
@@ -47,8 +47,7 @@ public class ServerWindow extends JFrame {
             public void windowOpened(WindowEvent e) {
                 super.windowOpened(e);
                 try {
-                    String logText = Files.lines(Paths.get("log.txt")).reduce("", (a,b) -> STR."\{a}\n\{b}");
-                    log.setText(logText.trim());
+                    log.setText(Logger.getLog());
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
@@ -57,9 +56,8 @@ public class ServerWindow extends JFrame {
             @Override
             public void windowClosing(WindowEvent e) {
                 super.windowClosing(e);
-                try (FileWriter fw = new FileWriter("log.txt", false)){
-                    fw.write(log.getText().trim());
-                    fw.flush();
+                try {
+                    Logger.saveLog(log.getText().trim());
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
@@ -67,55 +65,17 @@ public class ServerWindow extends JFrame {
         });
     }
 
-    void connectClient(ClientGUI client){
-        if (isServerWork) {
-            addClient(client);
-            client.connected();
-            sendMessages(0, STR."\{client.getLogin()} подключен");
-        }
+    public void setServer(ServerController server) {
+        this.server = server;
     }
-
-    private void addClient(ClientGUI client){
-        if (client != null) {
-            System.out.println(client.getID());
-            this.clients.add(client);
-        }
-    }
-
-    private void sendLog(String message){
-        log.append(STR."\n\{formatter.format(date)} \{message}");
-    }
-
-    String getFormatter(){
-        return formatter.format(date);
-    }
-
-    void sendMessages(int ID, String message){
-        sendLog(message);
-        for (ClientGUI client : clients){
-            if (client.getID() != ID){
-                client.sendMessage(STR."\{message}");
-            }
-        }
-    }
-
-    String getLog(){
-      return log.getText().trim();
-    };
 
     private void createPanelBottom(){
         btnStop.addActionListener(e -> {
-            isServerWork = false;
-            sendMessages(0, "Server stopped");
-            for (ClientGUI client : clients){
-                client.logout();
-            }
-            clients.clear();
+            stopServer();
         });
 
         btnStart.addActionListener(e -> {
-            isServerWork = true;
-            sendMessages(0, "Server started");
+            startServer();
         });
 
         JPanel panBottom = new JPanel(new GridLayout(1, 2));
@@ -128,5 +88,25 @@ public class ServerWindow extends JFrame {
         log.setEditable(false);
         JScrollPane scrolling = new JScrollPane(log);
         add(scrolling);
+    }
+
+    @Override
+    public void connectClient(String text) {
+        server.setLogServer(log.getText());
+    }
+
+    @Override
+    public void startServer() {
+        server.startServer();
+    }
+
+    @Override
+    public void stopServer() {
+        server.stopServer();
+    }
+
+    @Override
+    public void showMessage(String text) {
+        log.append(STR."\n\{text}");
     }
 }
